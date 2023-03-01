@@ -83,7 +83,8 @@ public class GradeBookController {
 			throw new ResponseStatusException( HttpStatus.BAD_REQUEST, "Course not found  " + assignment.courseId);
 		}
 	}
-		
+	
+	//This function is called upon when adding an assignment to turn an Assignment object into a AssignmentListDTO.AssignmentDTO object
 	private AssignmentListDTO.AssignmentDTO createAssignmentDTO(Assignment a) {
 		AssignmentListDTO.AssignmentDTO newAssignmentDTO = new AssignmentListDTO.AssignmentDTO();
 		Course c = a.getCourse();
@@ -98,13 +99,19 @@ public class GradeBookController {
 	@DeleteMapping("/gradebook/{assignment_id}")
 	@Transactional
 	public void removeAssignment(@PathVariable int assignment_id) {
+		//Finds the assignment that has the same assignment id as the one passed in
 		Assignment assignment = assignmentRepository.findAssignmentById(assignment_id);
+		
+		//If it is not null and the NeedsGrading variable is not 0 meaning the assignment has not been graded
+		//The assignment with the specific assignment id will be deleted from the database
 		if(assignment != null && assignment.getNeedsGrading() != 0) {
 			assignmentRepository.delete(assignment);
 		} 
+		//If NeedsGrading is 0 then it will return a bad request and a message saying the assignment has been graded
 		else if(assignment.getNeedsGrading() == 0) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Assignment is Graded ");
 		}
+		//If the assignment was not found then it will return a bad request and a message saying that the id is invalid
 		else {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Assignment_id invalid. "+assignment_id);
 		}
