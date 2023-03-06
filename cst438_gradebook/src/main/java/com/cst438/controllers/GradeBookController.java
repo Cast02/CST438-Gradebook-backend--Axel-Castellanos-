@@ -63,6 +63,7 @@ public class GradeBookController {
 	@PostMapping("/addAssignment")
 	@Transactional
 	public AssignmentListDTO.AssignmentDTO addAssignment(@RequestBody  AssignmentListDTO.AssignmentDTO assignment) {
+		//Creates a new assignment to transfer the information passed in as an Assignment object		
 		Assignment assignmentBeingAdded = new Assignment();
 		//Checks to see if a course can be found with the course Id that was entered
 		Course course  = courseRepository.findById(assignment.courseId).orElse(null);
@@ -74,7 +75,9 @@ public class GradeBookController {
 		assignmentBeingAdded.setNeedsGrading(1);
 		assignmentBeingAdded.setCourse(course);
 		
+		//A new Assignment is created that equals the Assignment that stores the information passed in after being saved in the Repository.
 		Assignment newAssignment = assignmentRepository.save(assignmentBeingAdded);
+		//The "newAssignment" is converted to a AssignmentListDTO.AssignmentDTO object by using the createAssignmentDTO method
 		AssignmentListDTO.AssignmentDTO result = createAssignmentDTO(newAssignment);
 		
 		return result;
@@ -86,17 +89,19 @@ public class GradeBookController {
 	
 	//This function is called upon when adding an assignment to turn an Assignment object into a AssignmentListDTO.AssignmentDTO object
 	private AssignmentListDTO.AssignmentDTO createAssignmentDTO(Assignment a) {
+		//This creates a new AssignmentListDTO.AssignmentDTO to be returned with the information passed in
 		AssignmentListDTO.AssignmentDTO newAssignmentDTO = new AssignmentListDTO.AssignmentDTO();
+		//A new Course is made to store the course that was passed in
 		Course c = a.getCourse();
+		//The information about the assignment is now store in the variable "newAssignmentDTO"
 		newAssignmentDTO.assignmentName = a.getName();
 		newAssignmentDTO.dueDate = a.getDueDate().toString();
 		newAssignmentDTO.courseId = c.getCourse_id();
-			
+		//The variable "newAssignmentDTO" is returned to help add the assignment to the database	
 		return newAssignmentDTO;
 	}
 	
-	@SuppressWarnings("null")
-	@DeleteMapping("/gradebook/{assignment_id}")
+	@DeleteMapping("/deleteAssignment/{assignment_id}")
 	@Transactional
 	public void removeAssignment(@PathVariable int assignment_id) {
 		//Finds the assignment that has the same assignment id as the one passed in
