@@ -2,11 +2,14 @@ package com.cst438.controllers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.sql.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -56,6 +59,69 @@ public class GradeBookController {
 		}
 		return result;
 	}
+	
+	@PostMapping("/addAssignment")
+	@Transactional
+	public AssignmentListDTO.AssignmentDTO addAssignment(@RequestBody  AssignmentListDTO.AssignmentDTO assignment) {
+		//Creates a new assignment to transfer the information passed in as an Assignment object		
+		Assignment assignmentBeingAdded = new Assignment();
+		//Checks to see if a course can be found with the course Id that was entered
+		Course course  = courseRepository.findById(assignment.courseId).orElse(null);
+		
+		//If it was found the assignment will be created as a AssignmentListDTO.AssignmentDTO to be able to be added to the database
+		if(course != null) {
+		assignmentBeingAdded.setDueDate(Date.valueOf(assignment.dueDate));
+		assignmentBeingAdded.setName(assignment.assignmentName);
+		assignmentBeingAdded.setNeedsGrading(1);
+		assignmentBeingAdded.setCourse(course);
+		
+		//A new Assignment is created that equals the Assignment that stores the information passed in after being saved in the Repository.
+		Assignment newAssignment = assignmentRepository.save(assignmentBeingAdded);
+		//The "newAssignment" is converted to a AssignmentListDTO.AssignmentDTO object by using the createAssignmentDTO method
+		AssignmentListDTO.AssignmentDTO result = createAssignmentDTO(newAssignment);
+		
+		return result;
+		} else {
+			//If course was not found an error is returned notifying that the course was not found with the course Id that was entered
+			throw new ResponseStatusException( HttpStatus.BAD_REQUEST, "Course not found  " + assignment.courseId);
+		}
+	}
+	
+	//This function is called upon when adding an assignment to turn an Assignment object into a AssignmentListDTO.AssignmentDTO object
+	private AssignmentListDTO.AssignmentDTO createAssignmentDTO(Assignment a) {
+		//This creates a new AssignmentListDTO.AssignmentDTO to be returned with the information passed in
+		AssignmentListDTO.AssignmentDTO newAssignmentDTO = new AssignmentListDTO.AssignmentDTO();
+		//A new Course is made to store the course that was passed in
+		Course c = a.getCourse();
+		//The information about the assignment is now store in the variable "newAssignmentDTO"
+		newAssignmentDTO.assignmentName = a.getName();
+		newAssignmentDTO.dueDate = a.getDueDate().toString();
+		newAssignmentDTO.courseId = c.getCourse_id();
+		//The variable "newAssignmentDTO" is returned to help add the assignment to the database	
+		return newAssignmentDTO;
+	}
+	
+	@DeleteMapping("/deleteAssignment/{assignment_id}")
+	@Transactional
+	public void removeAssignment(@PathVariable int assignment_id) {
+		//Finds the assignment that has the same assignment id as the one passed in
+		Assignment assignment = assignmentRepository.findAssignmentById(assignment_id);
+		
+		//If it is not null and the NeedsGrading variable is not 0 meaning the assignment has not been graded
+		//The assignment with the specific assignment id will be deleted from the database
+		if(assignment != null && assignment.getNeedsGrading() != 0) {
+			assignmentRepository.delete(assignment);
+		} 
+		//If NeedsGrading is 0 then it will return a bad request and a message saying the assignment has been graded
+		else if(assignment.getNeedsGrading() == 0) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Assignment is Graded ");
+		}
+		//If the assignment was not found then it will return a bad request and a message saying that the id is invalid
+		else {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Assignment_id invalid. "+assignment_id);
+		}
+	}
+	
 	
 	@GetMapping("/gradebook/{id}")
 	public GradebookDTO getGradebook(@PathVariable("id") Integer assignmentId  ) {
@@ -123,6 +189,8 @@ public class GradeBookController {
 		
 		registrationService.sendFinalGrades(course_id, cdto);
 	}
+	
+
 	
 	private String letterGrade(double grade) {
 		if (grade >= 90) return "A";

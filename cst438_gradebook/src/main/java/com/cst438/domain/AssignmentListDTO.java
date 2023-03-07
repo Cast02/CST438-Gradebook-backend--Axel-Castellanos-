@@ -2,6 +2,7 @@ package com.cst438.domain;
 
 import java.util.ArrayList;
 
+
 /*
  * a transfer object that is a list of assignment details
  */
@@ -13,6 +14,14 @@ public class AssignmentListDTO {
 		public String dueDate;
 		public String courseTitle;
 		public int courseId;
+		
+		public AssignmentDTO() {
+			this.assignmentId = 0;
+			this.assignmentName = null;
+			this.dueDate = null;
+			this.courseTitle = null;
+			this.courseId = 0;
+		}
 
 		public AssignmentDTO(int assignmentId, int courseId, String assignmentName, String dueDate,
 				String courseTitle) {
