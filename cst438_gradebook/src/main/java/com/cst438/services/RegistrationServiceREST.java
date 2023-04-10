@@ -7,7 +7,6 @@ import com.cst438.domain.CourseDTOG;
 
 public class RegistrationServiceREST extends RegistrationService {
 
-	
 	RestTemplate restTemplate = new RestTemplate();
 	
 	@Value("${registration.url}") 
@@ -19,8 +18,10 @@ public class RegistrationServiceREST extends RegistrationService {
 	
 	@Override
 	public void sendFinalGrades(int course_id , CourseDTOG courseDTO) { 
-		
 		//TODO  complete this method in homework 4
-		
+		// this calls the REST API in the GradeBookController 
+		restTemplate.put(registration_url + "/course/" + course_id, courseDTO);
+		// this sends a message to the console 
+		System.out.println("After sending final grades");
 	}
 }
