@@ -49,7 +49,6 @@ public class RegistrationServiceMQ extends RegistrationService {
 		System.out.println("Receive enrollment:" + enrollmentDTO);
 		
 		//TODO  complete this method in homework 4
-		
 		// this creates a new Enrollment to store the student's enrollment in the enrollmentRepository
 		Enrollment e = new Enrollment();
 		e.setStudentName(enrollmentDTO.studentName);
@@ -72,11 +71,9 @@ public class RegistrationServiceMQ extends RegistrationService {
 		System.out.println("Sending message to registration service");
 		
 		//TODO  complete this method in homework 4
-		
 		// this uses rabbitTemplate to send the courseDTO variable to the RabbitListener in the file GradebookServiceMQ.java in the registration service
 		rabbitTemplate.convertAndSend(registrationQueue.getName(), courseDTO);
 		// this confirms that the variable was sent correctly
 		System.out.println("Message sent to registration service for course "  + course_id);
 	}
-
 }
