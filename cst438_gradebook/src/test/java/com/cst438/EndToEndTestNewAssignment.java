@@ -74,11 +74,11 @@ public class EndToEndTestNewAssignment {
 		//puts an Implicit wait for 10 seconds before throwing exception
 		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 		
-		//this line of code helps access the webpage that the frontend application develops
-		driver.get(URL);
-		Thread.sleep(SLEEP_DURATION);
-		
 		try {
+			//this line of code helps access the webpage that the frontend application develops
+			driver.get(URL);
+			Thread.sleep(SLEEP_DURATION);
+			
 			//this finds the button on the home page that takes the user to create a new assignment and clicks it
 			driver.findElement(By.id("addingAssignment")).click();
 			Thread.sleep(SLEEP_DURATION);
